@@ -1,0 +1,37 @@
+version: '3'
+services:
+  mysql-db:
+    platform: linux/x86_64
+    image: mysql
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=authentication-db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks: 
+      - mysql-compose-network
+  phpmyadmin:
+    image: phpmyadmin
+    ports:
+      - 9080:80
+    environment:
+      - PMA_HOST=mysql-db
+      - PMA_PORT=3306
+      - PMA_ARBITRARY=1
+    networks: 
+      - mysql-compose-network
+    depends_on:
+    - mysql-db
+    restart: always
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  mysql-compose-network:
+    driver: bridge
