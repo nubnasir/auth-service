@@ -1,5 +1,6 @@
 package com.authentication.nubnasirauth.service;
 
+import com.authentication.nubnasirauth.exceptions.BadRequestException;
 import com.authentication.nubnasirauth.model.domain.UserEntity;
 import com.authentication.nubnasirauth.model.dto.UserDto;
 import com.authentication.nubnasirauth.repository.UserEntityRepository;
@@ -25,15 +26,15 @@ public class AuthUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userEntityRepository.findByUserName(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found with username: " + username);
-        }
+        UserEntity user = userEntityRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
         return new User(user.getUserName(), user.getPassword(),
                 new ArrayList<>());
     }
 
-    public UserDto save(String userName, String password, String email, String role, String status) {
+    public UserDto save(String userName, String password, String email, String role, String status) throws BadRequestException {
+    	if(userEntityRepository.findByUserName(userName).isPresent()) {
+    		throw new BadRequestException("User already exists");
+    	}
         userEntityRepository.save(
                 UserEntity.builder()
                         .userName(userName)

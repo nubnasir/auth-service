@@ -25,7 +25,7 @@ services:
     networks: 
       - mysql-compose-network
     depends_on:
-    - mysql-db
+      - mysql-db
     restart: always
 
 volumes:

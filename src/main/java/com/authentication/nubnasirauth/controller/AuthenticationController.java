@@ -1,6 +1,8 @@
 package com.authentication.nubnasirauth.controller;
 
 import com.authentication.nubnasirauth.config.JwtTokenUtil;
+import com.authentication.nubnasirauth.exceptions.BadRequestException;
+import com.authentication.nubnasirauth.exceptions.UnAuthorizedException;
 import com.authentication.nubnasirauth.model.dto.UserDto;
 import com.authentication.nubnasirauth.model.request.LoginRequest;
 import com.authentication.nubnasirauth.model.response.TokenResponse;
@@ -43,7 +45,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public UserDto saveUser(@RequestBody UserDto user) {
+    public UserDto saveUser(@RequestBody UserDto user) throws BadRequestException {
         return userDetailsService.save(user.getUsername(), user.getPassword(), user.getUsername()+"@xyz.com", "CUSTOMER", "ACTIVE");
     }
 
@@ -51,9 +53,9 @@ public class AuthenticationController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            throw new UnAuthorizedException("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new UnAuthorizedException("INVALID_CREDENTIALS", e);
         }
     }
 }
